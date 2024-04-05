@@ -1,22 +1,22 @@
-const mongoose = require("moongoose");
+const mongoose = require("mongoose");
 
-const Schema = mongoose.schema;
+const Schema = mongoose.Schema;
 
 const ItemSchema = new Schema({
   name: { type: String, required: true, maxLength: 100 },
   description: { type: String, required: true, maxLength: 200 },
   price: { type: Number },
-  in_stock_count: { type: Number },
-  department: {
+  number_in_stock: { type: Number },
+  category: {
     type: Schema.Types.ObjectId,
-    ref: "Department",
+    ref: "Category",
     required: true,
   },
   aisle: { type: Number },
 });
 
 ItemSchema.virtual("url").get(function () {
-  return `/department/${this._id}`;
+  return `/category/${this._id}`;
 });
 
 module.exports = mongoose.model("Item", ItemSchema);
