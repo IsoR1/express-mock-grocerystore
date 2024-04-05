@@ -9,12 +9,10 @@ const userArgs = process.argv.slice(2);
 
 const Item = require("./models/item");
 const Category = require("./models/category");
-// const Aisle = require("./models/aisle");
 const StoreInstances = require("./models/storeinstance");
 
 const items = [];
 const categories = [];
-// const aisles = [];
 const storeinstances = [];
 
 const mongoose = require("mongoose");
@@ -36,25 +34,16 @@ async function main() {
 
 async function storeInstanceCreate(index, address, city, state, item) {}
 
-// async function categoryCreate(index, name, aisles) {
 async function categoryCreate(index, name) {
   const categoryDetail = {
     name: name,
   };
 
-  // if (aisles != false) categoryDetail.aisles = aisles;
   const category = categoryDetail;
   await category.save();
   categories[index] = category;
   console.log(`Added category: ${name}`);
 }
-
-// async function aisleCreate(index, aisle) {
-//   const aisle = new Aisle({ aisle: aisle });
-//   await aisle.save();
-//   aisles[index] = aisle;
-//   console.log(`added aisle(s) ${aisle}`);
-// }
 
 async function itemCreate(
   index,
