@@ -5,8 +5,15 @@ const Schema = mongoose.Schema;
 const ItemSchema = new Schema({
   name: { type: String, required: true, maxLength: 100 },
   description: { type: String, required: true, maxLength: 200 },
+  size: [
+    { type: Number },
+    {
+      type: String,
+      enum: ["Ounce", "Pound", "Gallon", "Pint", "Quart", "Piece", "Liter"],
+    },
+  ],
   price: { type: Number },
-  number_in_stock: { type: Number },
+  number_in_stock: { type: Number, default: 0 },
   category: {
     type: Schema.Types.ObjectId,
     ref: "Category",
@@ -16,7 +23,7 @@ const ItemSchema = new Schema({
 });
 
 ItemSchema.virtual("url").get(function () {
-  return `/category/${this._id}`;
+  return `/catalog/item/${this._id}`;
 });
 
 module.exports = mongoose.model("Item", ItemSchema);
