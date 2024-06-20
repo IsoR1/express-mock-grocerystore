@@ -1,0 +1,37 @@
+extends layout 
+
+block content 
+
+    h1= title
+
+    form(method="POST")
+        div.form-group
+            label(for="address") Address: 
+            input#address.form-control(type="text", placeholder="Address of store", name='address', required value=(undefined===storeinstance ? "" : storeinstance.address))
+        div.form-group
+            label(for="city") City: 
+            input#city.form-control(type="text", placeholder="City of store", name='city', required value=(undefined===storeinstance ? "" : storeinstance.city))
+        div.form-group
+            label(for="state") State: 
+            input#state.form-control(type="text", placeholder="State of store", name='state', required value=(undefined===storeinstance ? "" : storeinstance.state))
+        div.form-group
+        label Items in Store:
+        div
+          for item in items    
+            //- #{console.log(item)}
+            div(style='display: inline; padding-right:10px;')
+              if item.checked
+                input.checkbox-input(type='checkbox', name='item', id=item._id, value=item._id, checked)
+              else
+                input.checkbox-input(type='checkbox', name='item', id=item._id, value=item._id)
+              label(for=item._id) &nbsp;#{item.name}
+        label Categories/Departments in Store:
+        div
+          for category in categories
+            div(style='display: inline; padding-right:10px;')
+              if category.checked
+                input.checkbox-input(type='checkbox', name='category', id=category._id, value=category._id, checked)
+              else
+                input.checkbox-input(type='checkbox', name='category', id=category._id, value=category._id)
+              label(for=category._id) &nbsp;#{category.name}
+        button.btn.btn-primary(type="submit") Submit

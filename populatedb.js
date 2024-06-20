@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 console.log(
-  'This script populates some test items and categories to your database. Specified database as argument - e.g.: node populatedb "mongodb+srv://cooluser:coolpassword@cluster0.lz91hw2.mongodb.net/local_library?retryWrites=true&w=majority"'
+  'This script populates some test items and categories to your database. Specified database as argument - e.g.: node populatedb "mongodb+srv://cooluser:coolpassword@cluster0.lz91hw2.mongodb.net/grocery_store?retryWrites=true&w=majority"'
 );
 
 // Get arguments passed on command line
@@ -9,7 +9,7 @@ const userArgs = process.argv.slice(2);
 
 const Item = require("./models/item");
 const Category = require("./models/category");
-const StoreInstances = require("./models/storeinstance");
+const StoreInstance = require("./models/storeinstance");
 
 const items = [];
 const categories = [];
@@ -28,18 +28,39 @@ async function main() {
   console.log("Debug: Should be connected?");
   await createCategories();
   await createItems();
+  await createStoreInstances();
   console.log("Debug: Closing mongoose");
   mongoose.connection.close();
 }
 
-async function storeInstanceCreate(index, address, city, state, item) {}
+async function storeInstanceCreate(
+  index,
+  address,
+  city,
+  state,
+  item,
+  category
+) {
+  const storeInstanceDetail = {
+    address: address,
+    city: city,
+    state: state,
+    category: category,
+  };
+  if (item != false) storeInstanceDetail.item = item;
+  const storeInstance = new StoreInstance(storeInstanceDetail);
+  await storeInstance.save();
+  storeinstances[index] = storeInstance;
+  console.log(`Added store instance with street address of ${address}`);
+}
 
-async function categoryCreate(index, name) {
+async function categoryCreate(index, name, description) {
   const categoryDetail = {
     name: name,
+    description: description,
   };
 
-  const category = categoryDetail;
+  const category = new Category(categoryDetail);
   await category.save();
   categories[index] = category;
   console.log(`Added category: ${name}`);
@@ -49,6 +70,8 @@ async function itemCreate(
   index,
   name,
   description,
+  sizeValue,
+  sizeUnit,
   price,
   number_in_stock,
   category,
@@ -60,6 +83,8 @@ async function itemCreate(
     category: category,
   };
 
+  if (sizeValue != false) itemDetail.sizeValue = sizeValue;
+  if (sizeUnit != false) itemDetail.sizeUnit = sizeUnit;
   if (price != false) itemDetail.price = price;
   if (number_in_stock != false) itemDetail.number_in_stock = number_in_stock;
   if (aisle != false) itemDetail.aisle = aisle;
@@ -71,162 +96,245 @@ async function itemCreate(
 }
 
 async function createCategories() {
-  console.log("adding categories");
+  console.log("Adding categories");
   await Promise.all([
     categoryCreate(0, "Produce"),
     categoryCreate(1, "Butcher"),
     categoryCreate(2, "Deli"),
-    categoryCreate(3, "Frozen Foods", [9, 10]),
+    categoryCreate(3, "Frozen Foods"),
     categoryCreate(4, "Bakery"),
     categoryCreate(5, "Dairy"),
-    categoryCreate(6, "Packaged Foods", [4, 5, 6, 7, 8]),
-    categoryCreate(7, "Personal Goods", [1, 2, 3]),
-    categoryCreate(8, "Cleaning Products", [11, 12]),
+    categoryCreate(6, "Packaged Foods"),
+    categoryCreate(7, "Personal Goods"),
+    categoryCreate(8, "Cleaning Products"),
+    categoryCreate(9, "Drinks"),
+    categoryCreate(10, "Seafood"),
   ]);
 }
 
 async function createItems() {
   console.log("Adding items");
-  await Promise.all([itemCreate(0)]);
-}
-
-async function createGenres() {
-  console.log("Adding genres");
   await Promise.all([
-    genreCreate(0, "Fantasy"),
-    genreCreate(1, "Science Fiction"),
-    genreCreate(2, "French Poetry"),
-  ]);
-}
-
-async function createAuthors() {
-  console.log("Adding authors");
-  await Promise.all([
-    authorCreate(0, "Patrick", "Rothfuss", "1973-06-06", false),
-    authorCreate(1, "Ben", "Bova", "1932-11-8", false),
-    authorCreate(2, "Isaac", "Asimov", "1920-01-02", "1992-04-06"),
-    authorCreate(3, "Bob", "Billings", false, false),
-    authorCreate(4, "Jim", "Jones", "1971-12-16", false),
-  ]);
-}
-
-async function createBooks() {
-  console.log("Adding Books");
-  await Promise.all([
-    bookCreate(
+    itemCreate(
       0,
-      "The Name of the Wind (The Kingkiller Chronicle, #1)",
-      "I have stolen princesses back from sleeping barrow kings. I burned down the town of Trebon. I have spent the night with Felurian and left with both my sanity and my life. I was expelled from the University at a younger age than most people are allowed in. I tread paths by moonlight that others fear to speak of during day. I have talked to Gods, loved women, and written songs that make the minstrels weep.",
-      "9781473211896",
-      authors[0],
-      [genres[0]]
-    ),
-    bookCreate(
+      "Milk",
+      "Pasteurized Milk",
       1,
-      "The Wise Man's Fear (The Kingkiller Chronicle, #2)",
-      "Picking up the tale of Kvothe Kingkiller once again, we follow him into exile, into political intrigue, courtship, adventure, love and magic... and further along the path that has turned Kvothe, the mightiest magician of his age, a legend in his own time, into Kote, the unassuming pub landlord.",
-      "9788401352836",
-      authors[0],
-      [genres[0]]
+      "Gallon",
+      5.0,
+      10,
+      categories[5]
     ),
-    bookCreate(
+    itemCreate(
+      1,
+      "Milk",
+      "Pasteurized Milk",
+      0.5,
+      "Gallon",
+      3.0,
+      10,
+      categories[5]
+    ),
+    itemCreate(
       2,
-      "The Slow Regard of Silent Things (Kingkiller Chronicle)",
-      "Deep below the University, there is a dark place. Few people know of it: a broken web of ancient passageways and abandoned rooms. A young woman lives there, tucked among the sprawling tunnels of the Underthing, snug in the heart of this forgotten place.",
-      "9780756411336",
-      authors[0],
-      [genres[0]]
+      "Large Eggs",
+      "Large Eggs",
+      12,
+      "Piece",
+      5.0,
+      10,
+      categories[5]
     ),
-    bookCreate(
+    itemCreate(
       3,
-      "Apes and Angels",
-      "Humankind headed out to the stars not for conquest, nor exploration, nor even for curiosity. Humans went to the stars in a desperate crusade to save intelligent life wherever they found it. A wave of death is spreading through the Milky Way galaxy, an expanding sphere of lethal gamma ...",
-      "9780765379528",
-      authors[1],
-      [genres[1]]
+      "Classic Coca Cola",
+      "Nothing beats the taste of classic Coca‑Cola!",
+      2,
+      "Liter",
+      4.0,
+      14,
+      categories[9]
     ),
-    bookCreate(
+    itemCreate(
       4,
-      "Death Wave",
-      "In Ben Bova's previous novel New Earth, Jordan Kell led the first human mission beyond the solar system. They discovered the ruins of an ancient alien civilization. But one alien AI survived, and it revealed to Jordan Kell that an explosion in the black hole at the heart of the Milky Way galaxy has created a wave of deadly radiation, expanding out from the core toward Earth. Unless the human race acts to save itself, all life on Earth will be wiped out...",
-      "9780765379504",
-      authors[1],
-      [genres[1]]
+      "Diet Coca Cola",
+      "You can always count on having the crisp, refreshing taste you know and love",
+      2,
+      "Liter",
+      4.0,
+      20,
+      categories[9]
     ),
-    bookCreate(
+    itemCreate(
       5,
-      "Test Book 1",
-      "Summary of test book 1",
-      "ISBN111111",
-      authors[4],
-      [genres[0], genres[1]]
+      "Diet Coca Cola",
+      "You can always count on having the crisp, refreshing taste you know and love",
+      12,
+      "Pack",
+      6.0,
+      20,
+      categories[9]
     ),
-    bookCreate(
+    itemCreate(
       6,
-      "Test Book 2",
-      "Summary of test book 2",
-      "ISBN222222",
-      authors[4],
-      false
+      "Orange Juice",
+      "Fresh orange juice",
+      1,
+      "Liter",
+      3.5,
+      15,
+      categories[9]
     ),
+    itemCreate(
+      7,
+      "Apple Juice",
+      "Fresh apple juice",
+      64,
+      "Ounce",
+      4.0,
+      10,
+      categories[9]
+    ),
+    itemCreate(
+      8,
+      "Sparkling Water",
+      "Carbonated water",
+      1,
+      "Liter",
+      1.5,
+      20,
+      categories[9]
+    ),
+    itemCreate(
+      9,
+      "Chocolate Milk",
+      "Chocolate-flavored milk",
+      1,
+      "Quart",
+      2.5,
+      15,
+      categories[5]
+    ),
+    itemCreate(
+      10,
+      "Yogurt",
+      "Greek yogurt",
+      32,
+      "Ounce",
+      3.0,
+      20,
+      categories[5]
+    ),
+    itemCreate(
+      11,
+      "Cottage Cheese",
+      "Low-fat cottage cheese",
+      16,
+      "Ounce",
+      2.0,
+      25,
+      categories[5]
+    ),
+    itemCreate(12, "Bagel", "Plain bagel", 1, "Piece", 1.0, 30, categories[4]),
+    itemCreate(13, "Donut", "Glazed donut", 1, "Piece", 1.5, 25, categories[4]),
+    itemCreate(
+      14,
+      "Frozen Vegetables",
+      "Mixed vegetables",
+      16,
+      "Ounce",
+      2.0,
+      30,
+      categories[3]
+    ),
+    itemCreate(
+      15,
+      "Frozen Pizza",
+      "Cheese frozen pizza",
+      12,
+      "Inch",
+      5.0,
+      15,
+      categories[3]
+    ),
+    itemCreate(
+      16,
+      "Granola Bar",
+      "Oat and honey granola bar",
+      6,
+      "Piece",
+      3.0,
+      20,
+      categories[6]
+    ),
+    itemCreate(
+      17,
+      "Potato Chips",
+      "Barbecue potato chips",
+      8,
+      "Ounce",
+      2.0,
+      40,
+      categories[6]
+    ),
+    itemCreate(
+      18,
+      "Peanuts",
+      "Salted peanuts",
+      16,
+      "Ounce",
+      4.0,
+      25,
+      categories[6]
+    ),
+    itemCreate(
+      19,
+      "Pasta",
+      "Fettuccine pasta",
+      1,
+      "Pound",
+      2.0,
+      20,
+      categories[6]
+    ),
+    itemCreate(20, "Rice", "White rice", 32, "Ounce", 1.5, 30, categories[6]),
   ]);
 }
 
-async function createBookInstances() {
-  console.log("Adding authors");
-  await Promise.all([
-    bookInstanceCreate(
+async function createStoreInstances() {
+  console.log("Adding store instances");
+  const promises = [];
+  const evenItems = items.filter((_, index) => index % 2 === 0);
+  promises.push(
+    storeInstanceCreate(
       0,
-      books[0],
-      "London Gollancz, 2014.",
-      false,
-      "Available"
-    ),
-    bookInstanceCreate(1, books[1], " Gollancz, 2011.", false, "Loaned"),
-    bookInstanceCreate(2, books[2], " Gollancz, 2015.", false, false),
-    bookInstanceCreate(
-      3,
-      books[3],
-      "New York Tom Doherty Associates, 2016.",
-      false,
-      "Available"
-    ),
-    bookInstanceCreate(
-      4,
-      books[3],
-      "New York Tom Doherty Associates, 2016.",
-      false,
-      "Available"
-    ),
-    bookInstanceCreate(
-      5,
-      books[3],
-      "New York Tom Doherty Associates, 2016.",
-      false,
-      "Available"
-    ),
-    bookInstanceCreate(
-      6,
-      books[4],
-      "New York, NY Tom Doherty Associates, LLC, 2015.",
-      false,
-      "Available"
-    ),
-    bookInstanceCreate(
-      7,
-      books[4],
-      "New York, NY Tom Doherty Associates, LLC, 2015.",
-      false,
-      "Maintenance"
-    ),
-    bookInstanceCreate(
-      8,
-      books[4],
-      "New York, NY Tom Doherty Associates, LLC, 2015.",
-      false,
-      "Loaned"
-    ),
-    bookInstanceCreate(9, books[0], "Imprint XXX2", false, false),
-    bookInstanceCreate(10, books[1], "Imprint XXX3", false, false),
-  ]);
+      "1st Fake Street",
+      "Fake City",
+      "Fake State",
+      items,
+      categories
+    )
+  );
+  promises.push(
+    storeInstanceCreate(
+      1,
+      "1st Real Street",
+      "Real City",
+      "Fake State",
+      items,
+      categories
+    )
+  );
+  promises.push(
+    storeInstanceCreate(
+      2,
+      "The Stables",
+      "Winterfell",
+      "The North",
+      evenItems,
+      categories
+    )
+  );
+
+  await Promise.all(promises);
 }

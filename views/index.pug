@@ -2,4 +2,13 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  p Welcome to #[em Local GroceryStore], a very basic Express website based off of the tutorial example on the Mozilla Developer Network.
+
+  h1 Dynamic content 
+
+  p The store has the following counts: 
+  
+  ul 
+    li #[strong Items:] !{item_count}
+    li #[strong Store Instances:] !{store_instance_count}
+    li #[strong Store Categories:] !{category_count}

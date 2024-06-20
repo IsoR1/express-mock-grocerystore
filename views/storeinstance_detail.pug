@@ -1,0 +1,28 @@
+extends layout 
+
+block content 
+
+    h1= title 
+    h2 Store Address: #{storeinstance.address}, #{storeinstance.city}, #{storeinstance.state}
+
+    div(style='margin-left:20px;margin-top:20px')
+
+        h4 Items 
+            if items
+              .row
+                  each item in items
+                      .card(style="width:18rem" class="col-md-4")
+                        img(class="card-img-top" src="..." alt="Card image cap")
+                        .card-body
+                          h5(class="card-title") #{item.name}
+                          p(class="card-text") #{item.description}
+                          p(class="card-text") $ #{item.price}
+                          a(href=item.url class="btn btn-primary") Item Detail
+            else 
+                p there are no items in this category
+                
+    hr
+    p
+      a(href=storeinstance.url+'/delete') Delete Store Instance
+    p
+      a(href=storeinstance.url+'/update') Update Store Instance

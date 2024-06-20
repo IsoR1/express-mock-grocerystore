@@ -1,0 +1,40 @@
+extends layout 
+
+block content 
+    h1= title
+
+    form(method="POST")
+        div.form-group
+            label(for="name") Name: 
+            input#name.form-control(type="text", placeholder="Name of item", name='name', required value=(undefined===item ? "" : item.name))
+        div.form-group
+            label(for="description") Description: 
+            input#description.form-control(type="text", placeholder="Description of item", name='description')
+        div.form-group
+            label(for="category") Category: 
+            select#category.form-control(name="category" required)
+                option(value="") --Please select a category--
+                for category in categories
+                    if item 
+                        if category._id.toString()===item.category._id.toString()
+                            option(value=category._id selected) #{category.name}
+                        else 
+                            option(value=category._id) #{category.name}
+                    else 
+                        option(value=category._id) #{category.name}
+        div.form-group
+            label(for="size_value") Size Value:
+            input#size_value.form-control(type="text", placeholder="Size value of item", name='size_value', required value=(undefined===item ? "" : item.size_value))
+        div.form-group
+            label(for="size_unit") Size Unit:
+            select#size_unit.form-control(name='size_unit')
+                option(value="") --Please select a size unit--
+                each val in ["Ounce", "Pound", "Gallon", "Pint", "Quart", "Piece", "Liter", "Pack", "Inch",]
+                    if undefined===item || item.size_unit!=val
+                        option(value=val)= val
+                    else 
+                        option(value=val selected)= val
+        div.form-group
+            label(for="number_in_stock") Number in Stock:
+            input#number_in_stock.form-control(type="number", placeholder="Number of item in stock", name="number_in_stock")
+        button.btn.btn-primary(type="submit") Submit

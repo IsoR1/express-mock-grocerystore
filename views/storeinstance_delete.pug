@@ -1,0 +1,25 @@
+extends layout 
+
+block content 
+
+    h1 #{title}: #{storeinstance.address}
+
+    if items.length
+
+        p #[strong Delete the following items before attempting to delete the store.]
+        div(style='margin-left:20px;margin-top:20px')
+            h4 Items 
+            dl 
+                each item in items
+                    dt 
+                        a(href=item.url) #{item.name}
+                    dd #{item.description}
+    else 
+        p Do you really want to delete this Store?
+
+
+        form(method='POST')
+          div.form-group
+            input#storeinstanceid.form-control(type='hidden', name='storeinstanceid', value=storeinstance._id )
+       
+          button.btn.btn-primary(type='submit') Delete

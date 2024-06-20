@@ -1,0 +1,12 @@
+extends layout
+
+block content
+    h1= title
+
+    if storeinstance_list.length
+        ul
+            each store in storeinstance_list
+                li 
+                    a(href=store.url) #{store.address} #{store.city} #{store.state}
+    else 
+        p There are no stores
